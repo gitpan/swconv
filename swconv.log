@@ -1,0 +1,106 @@
+This is TeX, Version 3.14159 (C version 6.1) (format=latex 97.4.20)  25 SEP 1998 00:21
+**swconv.tex
+(swconv.tex
+LaTeX2e <1996/12/01> patch level 1
+Babel <v3.6h> and hyphenation patterns for american, german, loaded.
+(/usr/lib/texmf/texmf/tex/latex/base/article.cls
+Document Class: article 1996/10/31 v1.3u Standard LaTeX document class
+(/usr/lib/texmf/texmf/tex/latex/base/size10.clo
+File: size10.clo 1996/10/31 v1.3u Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+) (swconv.aux)
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+
+Overfull \hbox (26.13962pt too wide) in paragraph at lines 21--23
+\OT1/cmr/m/n/10 swconv was de-signed for use at Marathon Oil Com-pany (http://w
+ww.marathon.com/).
+ []
+
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 70.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 70.
+! Missing $ inserted.
+<inserted text> 
+                $
+l.72 
+     
+? 
+! Display math should end with $$.
+<to be read again> 
+                   \par 
+l.72 
+     
+? 
+
+Overfull \hbox (36.90755pt too wide) detected at line 72
+\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 :Sometakemandatoryparameters; whileothersares
+impleflagstoenableacertainoption:
+ []
+
+[1
+
+]
+Overfull \hbox (1.10197pt too wide) in paragraph at lines 117--119
+[]\OT1/cmr/m/n/10 Please use this flag when you're test-ing things. De-pend-ing
+ on the ``\OT1/cmtt/m/n/10 --backup\OT1/cmr/m/n/10 ''
+ []
+
+[2]
+Overfull \hbox (30.74821pt too wide) in paragraph at lines 167--171
+\OT1/cmr/m/n/10 You have moved con-tent from \OT1/cmtt/m/n/10 /www/companyX/pro
+ducts \OT1/cmr/m/n/10 to \OT1/cmtt/m/n/10 /www/companyZ/products\OT1/cmr/m/n/10
+ ,
+ []
+
+
+Overfull \hbox (90.862pt too wide) in paragraph at lines 167--171
+\OT1/cmr/m/n/10 which are hosted as http://www.companyX.com/products and http:/
+/www.companyZ.com/products
+ []
+
+
+Overfull \hbox (3.02655pt too wide) in paragraph at lines 172--173
+[]\OT1/cmr/m/n/10 You move the con-tent and re-move the \OT1/cmtt/m/n/10 /www/c
+ompanyX/products directory\OT1/cmr/m/n/10 . 
+ []
+
+
+Overfull \hbox (1.05536pt too wide) in paragraph at lines 186--189
+\OT1/cmr/m/n/10 what is now on a dif-fer-ent vir-tual server, the stuff still s
+it-ting in \OT1/cmtt/m/n/10 /www/companyX/\OT1/cmr/m/n/10 . 
+ []
+
+[3] [4] (swconv.aux) ) 
+Here is how much of TeX's memory you used:
+ 222 strings out of 10906
+ 2114 string characters out of 72187
+ 46527 words of memory out of 262141
+ 3171 multiletter control sequences out of 9500
+ 5672 words of font info for 21 fonts, out of 150000 for 255
+ 14 hyphenation exceptions out of 607
+ 23i,5n,18p,114b,186s stack positions out of 300i,40n,60p,3000b,4000s
+
+Output written on swconv.dvi (4 pages, 10660 bytes).

@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Testing...</title>
+</head>
+
+<body>
+<h1>SOURCE</h1>
+
+Suppose that this is a file on shared-web.moc.com which contains
+references to stuff that was also in /benadm/ on shared-web.
+
+/benadm/ has been moved to mweb.fdy.moc.com.
+
+Should stay as /moc_confid.html
+<A HREF="/moc_confid.html">
+
+Should stay as /hr/wellness/money.html
+<A HREF="/hr/wellness/money.html">
+
+Should become http://mweb.fdy.moc.com/benadm/list.html
+<A HREF="/benadm/list.html">
+
+Should stay as http://www.blue-cross.com/
+<A HREF="http://www.blue-cross.com/">
+
+Should become http://mweb.fdy.moc.com/benadm/go_away.html
+<A HREF="http://shared-web.moc.com/benadm/go_away.html">
+
+Should stay as /zawodny/hello.html
+<A NAME="Foo" HREF="/zawodny/hello.html" TYPE="GOOD">
+
+Should stay as /kevin/pager.html
+<A
+NAME="Blah"
+HREF="/kevin/pager.html"
+Odor="None">
+
+Should stay as ../benadm/foo.html (too bad)
+<A HREF="../benadm/foo.html">
+
+<hr>
+<address>JDZ</address>
+<!-- hhmts start -->
+Last modified: Thu Sep 24 22:46:09 EDT 1998
+<!-- hhmts end -->
+</body> </html>

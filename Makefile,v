@@ -1,0 +1,43 @@
+head	1.1;
+access;
+symbols;
+locks
+	jzawodn:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	98.09.19.20.19.07;	author jzawodn;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@# swconv makefile.
+
+# $Id$
+
+all: swconv.1 swconv.html swconv.txt
+
+clean:
+	rm -f swconv.1
+	rm -f swconv.html
+	rm -f swconv.txt
+
+swconv.1: swconv.pod
+	pod2man swconv.pod > swconv.1
+
+swconv.html: swconv.pod
+	pod2html swconv.pod > swconv.html
+
+swconv.txt: swconv.pod
+	pod2text swconv.pod > swconv.txt
+@

@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Testing...</title>
+</head>
+
+<body>
+<h1>DESTINATION</h1>
+
+Suppose that this is /benadm/, which has just been moved
+from shared-web.moc.com to mweb.fdy.moc.com.
+
+It may contain relative links to stuff that still sits on
+shared-web, so those need to become fully-qualified links.
+
+It may also contain fully-qualified links to itself, which
+can be simplified.
+
+Should stay as /moc_confid.html
+<A HREF="/moc_confid.html">
+
+Should become http://shared-web.moc.com/hr/wellness/money.html
+<A HREF="/hr/wellness/money.html">
+
+Should stay as /benadm/list.html
+<A HREF="/benadm/list.html">
+
+Should stay as http://www.blue-cross.com/
+<A HREF="http://www.blue-cross.com/">
+
+Should become /benadm/go_away.html
+<A HREF="http://shared-web.moc.com/benadm/go_away.html">
+
+Should become http://shared-web.moc.com/zawodny/hello.html
+<A NAME="Foo" HREF="/zawodny/hello.html" TYPE="GOOD">
+
+Should become http://shared-web.moc.com/kevin/pager.html (one line)
+<A
+NAME="Blah"
+HREF="/kevin/pager.html"
+Odor="None">
+
+Should stay as ../badlinks/bar.html
+<A HREF="../badlinks/bar.html">
+
+<hr>
+<address>JDZ</address>
+<!-- hhmts start -->
+Last modified: Thu Sep 24 22:50:21 EDT 1998
+<!-- hhmts end -->
+</body> </html>

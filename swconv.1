@@ -1,0 +1,424 @@
+.rn '' }`
+''' $RCSfile$$Revision$$Date$
+'''
+''' $Log$
+'''
+.de Sh
+.br
+.if t .Sp
+.ne 5
+.PP
+\fB\\$1\fR
+.PP
+..
+.de Sp
+.if t .sp .5v
+.if n .sp
+..
+.de Ip
+.br
+.ie \\n(.$>=3 .ne \\$3
+.el .ne 3
+.IP "\\$1" \\$2
+..
+.de Vb
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve
+.ft R
+
+.fi
+..
+'''
+'''
+'''     Set up \*(-- to give an unbreakable dash;
+'''     string Tr holds user defined translation string.
+'''     Bell System Logo is used as a dummy character.
+'''
+.tr \(*W-|\(bv\*(Tr
+.ie n \{\
+.ds -- \(*W-
+.ds PI pi
+.if (\n(.H=4u)&(1m=24u) .ds -- \(*W\h'-12u'\(*W\h'-12u'-\" diablo 10 pitch
+.if (\n(.H=4u)&(1m=20u) .ds -- \(*W\h'-12u'\(*W\h'-8u'-\" diablo 12 pitch
+.ds L" ""
+.ds R" ""
+'''   \*(M", \*(S", \*(N" and \*(T" are the equivalent of
+'''   \*(L" and \*(R", except that they are used on ".xx" lines,
+'''   such as .IP and .SH, which do another additional levels of
+'''   double-quote interpretation
+.ds M" """
+.ds S" """
+.ds N" """""
+.ds T" """""
+.ds L' '
+.ds R' '
+.ds M' '
+.ds S' '
+.ds N' '
+.ds T' '
+'br\}
+.el\{\
+.ds -- \(em\|
+.tr \*(Tr
+.ds L" ``
+.ds R" ''
+.ds M" ``
+.ds S" ''
+.ds N" ``
+.ds T" ''
+.ds L' `
+.ds R' '
+.ds M' `
+.ds S' '
+.ds N' `
+.ds T' '
+.ds PI \(*p
+'br\}
+.\"	If the F register is turned on, we'll generate
+.\"	index entries out stderr for the following things:
+.\"		TH	Title 
+.\"		SH	Header
+.\"		Sh	Subsection 
+.\"		Ip	Item
+.\"		X<>	Xref  (embedded
+.\"	Of course, you have to process the output yourself
+.\"	in some meaninful fashion.
+.if \nF \{
+.de IX
+.tm Index:\\$1\t\\n%\t"\\$2"
+..
+.nr % 0
+.rr F
+.\}
+.TH SWCONV 1 "perl 5.004, patch 04" "25/Sep/98" "User Contributed Perl Documentation"
+.UC
+.if n .hy 0
+.if n .na
+.ds C+ C\v'-.1v'\h'-1p'\s-2+\h'-1p'+\s0\v'.1v'\h'-1p'
+.de CQ          \" put $1 in typewriter font
+.ft CW
+'if n "\c
+'if t \\&\\$1\c
+'if n \\&\\$1\c
+'if n \&"
+\\&\\$2 \\$3 \\$4 \\$5 \\$6 \\$7
+'.ft R
+..
+.\" @(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2
+.	\" AM - accent mark definitions
+.bd B 3
+.	\" fudge factors for nroff and troff
+.if n \{\
+.	ds #H 0
+.	ds #V .8m
+.	ds #F .3m
+.	ds #[ \f1
+.	ds #] \fP
+.\}
+.if t \{\
+.	ds #H ((1u-(\\\\n(.fu%2u))*.13m)
+.	ds #V .6m
+.	ds #F 0
+.	ds #[ \&
+.	ds #] \&
+.\}
+.	\" simple accents for nroff and troff
+.if n \{\
+.	ds ' \&
+.	ds ` \&
+.	ds ^ \&
+.	ds , \&
+.	ds ~ ~
+.	ds ? ?
+.	ds ! !
+.	ds /
+.	ds q
+.\}
+.if t \{\
+.	ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
+.	ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
+.	ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
+.	ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
+.	ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
+.	ds ? \s-2c\h'-\w'c'u*7/10'\u\h'\*(#H'\zi\d\s+2\h'\w'c'u*8/10'
+.	ds ! \s-2\(or\s+2\h'-\w'\(or'u'\v'-.8m'.\v'.8m'
+.	ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
+.	ds q o\h'-\w'o'u*8/10'\s-4\v'.4m'\z\(*i\v'-.4m'\s+4\h'\w'o'u*8/10'
+.\}
+.	\" troff and (daisy-wheel) nroff accents
+.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
+.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
+.ds v \\k:\h'-(\\n(.wu*9/10-\*(#H)'\v'-\*(#V'\*(#[\s-4v\s0\v'\*(#V'\h'|\\n:u'\*(#]
+.ds _ \\k:\h'-(\\n(.wu*9/10-\*(#H+(\*(#F*2/3))'\v'-.4m'\z\(hy\v'.4m'\h'|\\n:u'
+.ds . \\k:\h'-(\\n(.wu*8/10)'\v'\*(#V*4/10'\z.\v'-\*(#V*4/10'\h'|\\n:u'
+.ds 3 \*(#[\v'.2m'\s-2\&3\s0\v'-.2m'\*(#]
+.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
+.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
+.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
+.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
+.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
+.ds ae a\h'-(\w'a'u*4/10)'e
+.ds Ae A\h'-(\w'A'u*4/10)'E
+.ds oe o\h'-(\w'o'u*4/10)'e
+.ds Oe O\h'-(\w'O'u*4/10)'E
+.	\" corrections for vroff
+.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
+.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
+.	\" for low resolution devices (crt and lpr)
+.if \n(.H>23 .if \n(.V>19 \
+\{\
+.	ds : e
+.	ds 8 ss
+.	ds v \h'-1'\o'\(aa\(ga'
+.	ds _ \h'-1'^
+.	ds . \h'-1'.
+.	ds 3 3
+.	ds o a
+.	ds d- d\h'-1'\(ga
+.	ds D- D\h'-1'\(hy
+.	ds th \o'bp'
+.	ds Th \o'LP'
+.	ds ae ae
+.	ds Ae AE
+.	ds oe oe
+.	ds Oe OE
+.\}
+.rm #[ #] #H #V #F C
+.SH "NAME"
+swconv \- ``Shared-Web'\*(R' converter.
+.SH "SYNOPSIS"
+swconv [options] directory
+.SH "DESCRIPTION"
+swconv was designed for use at Marathon Oil Company
+(http://www.marathon.com/). (The name ``swconv'\*(R' is historical only.)
+.PP
+swconv is a utility to make moving large directory trees of web
+content from one virtual server (or directory) to another easier.
+.PP
+Every once in a while, the need arises to move web content from on
+virtual server to another. When that happens, the publisher or
+webmaster is left with the daunting task of changing/fixing/updating
+lots of hyperlinks that broke as a result of the move.
+.PP
+Unfortunately, the process of fixing those links is quite tedious and
+error prone when attempted manually. One must be sure to check (and
+possibly update references on the old an new virtual server. One must
+check all places where there might have been links to the moved
+content, the moved content itself may have broken links to content
+that used to be ``relative'\*(R' (because it was on the old virtual
+server), and so on.
+.PP
+swconv makes this process easier. It is designed to be run after the
+web content has been moved from the old virtual server to the new one
+and before any manual attempts to update the links have been
+attempted.
+.PP
+swconv scans for links embedded in these tags:
+.PP
+.Vb 5
+\&   <IMG...>
+\&   <A...>
+\&   <LINK...>
+\&   <FORM...>
+\&   <INPUT...>
+.Ve
+You will need to give swconv a fair amount of information about your
+setup. This can be accompished either with command-line options (see
+``OPTIONS'\*(R' below) or via a configuration file specified with the
+``--config'\*(R' option (not yet implemented).
+.PP
+One may simply invoke swconv with some command-line options (see
+``OPTIONS'\*(R' below) to customize its behavior and the path to the directory
+which needs to be processed.
+.PP
+After reading through the available options, you should read the
+``EXAMPLES'\*(R' section for ideas of how to use swconv when.
+.SH "OPTIONS"
+wclogrot can take a combination of many command-line options. All
+options begin with a double-dash (--). Some take mandatory parameters,
+while others are simple flags to enable a certain option.
+.PP
+The available options are:
+.PP
+\fB--logfile\fR ``/path/to/file'\*(R'
+.PP
+\fINOT IMPLEMENTED YET\fR
+.PP
+The location and file in which you'd like swconv to put messages. If
+a log file is specified, nothing will be printed to STDOUT unless a
+problem creeps up. If you specify the ``\f(CW--verbose\fR'\*(R' flag, it will
+increase the verbosity of the messgaes put into this file.
+.PP
+\fB--debug\fR
+.PP
+Enable the output of debugging messages to STDOUT. This is really
+only useful for development or if you are trying to track down a
+problem. The debugging messages should give you a good idea of what
+is happening as swconv goes through its motions.  Debugging is
+disabled by default. Debugging is not automatically redirected to a
+log file when the ``\f(CW--logfile\fR'\*(R' option is used. You must redirect
+debugging messages from the shell if you wish to capture them.
+.PP
+\fB--backup\fR
+.PP
+Enable the creation of backup files. Every file that is modified will
+be backed up by appending a backup suffix to the full name of hte file
+(see the ``\f(CW--backup-suffix\fR'\*(R' option, below). \fIBackups are disabled
+by default\fR.
+.PP
+\fB--backup-suffix \*(L"blah\*(R"\fR
+.PP
+\fINOT IMPLEMENTED YET\fR
+.PP
+Use this as the backup suffix. (See the ``\f(CW--backup\fR'\*(R' option, above)
+for details about what this does. The default value of backup-suffix
+is ``.bak'\*(R'
+.PP
+\fB--test\fR
+.PP
+Tell swconv to run in test mode. It will go through all the motions,
+respecting other swtiches you've set, but when it comes to commit the
+changes to disk, it will not rewrite any files. This is useful for
+pre-scanning directories to see what the impact of running swconv will
+be.
+.PP
+Please use this flag when you're testing things. Depending on the
+``\f(CW--backup\fR'\*(R' option isn't always what you want to do.
+.PP
+\fB--old-url-prefix\fR \*(L"http://www.some.thing/foo/\*(R"
+.PP
+\fIRequired\fR
+.PP
+Tell swconv the URL prefix of the old content location. This
+defaults to null, so is required that you set this option.
+.PP
+\fB--new-url-prefix\fR \*(L"http://www.new.thing/bar/\*(R"
+.PP
+\fIRequired\fR
+.PP
+Tell swconv the URL prefix of the new content location. This
+defaults to null, so it is required that you set this option.
+.PP
+\fB--dir-is-source\fR
+.PP
+Tell swconv that the directory you've specified is the source
+(meaning that it may contain links to the moved content). Source is
+where links start. This cannot be set if ``\f(CWdir-is-destination\fR''is
+set or an error will result.
+.PP
+\fB--dir-is-destination\fR
+.PP
+Tell swconv that the directory you've specified is the destination
+(meaning that it contains the moved content). Destination is where
+the links will go. This cannot be set if ``\f(CWdir-is-source\fR'\*(R' is
+set or an error will result.
+.PP
+\fB--help\fR
+.PP
+Display a brief help message to remind you of command-line
+arguments. This won't happen by default.
+.PP
+\fBdirectory\fR
+.PP
+The directory name/path that you specify may contain either ``\f(CW/\fR'\*(R'
+or ``\f(CW\e\fR'\*(R' as path separators (Unix or DOS style). They will be
+converted properly internally.
+.SH "EXAMPLES"
+Following are several examples of using swconv in different
+situations. In cases when the command-line arguments are quite long,
+lines are broken up with trailig backslahes (``\e'').
+.Sh "Example #1"
+You have moved content from \f(CW/www/companyX/products\fR to
+\f(CW/www/companyZ/products\fR, which are hosted as
+http://www.companyX.com/products and http://www.companyZ.com/products
+respectively.
+.PP
+You move the content and remove the \f(CW/www/companyX/products directory\fR.
+.PP
+There may be links in \f(CW/www/companyX/about_us\fR which refer to pages in
+what is now \f(CW/www/companyZ/products\fR, but the links don't know that.
+.PP
+To update any links in \f(CW/www/companyX/about_us\fR, do the following:
+.PP
+.Vb 5
+\&  cd /www/companyX
+\&  swconv --dir-is-source \e
+\&         --old-url-prefix "http://www.companyX.com/products/" \e
+\&         --new-url-prefix "http://www.companyZ.com/products/" \e
+\&         --backup about_us
+.Ve
+There may also be links in \f(CW/www/comapnyZ/products\fR which refer to
+pages in what is now on a different virtual server, the stuff still
+sitting in \f(CW/www/companyX/\fR.
+.PP
+To adjust those links, do the following:
+.PP
+.Vb 5
+\&  cd /www/companyZ
+\&  swconv --dir-is-destination \e
+\&         --old-url-prefix "http://www.companyX.com/products/" \e
+\&         --new-url-prefix "http://www.companyZ.com/products/" \e
+\&         --backup products
+.Ve
+Both of those sets of commands will produce backup files in those
+directories. Only files which change are backed up.
+.Sh "Example #2"
+This needs to be a more clever example of using swconv usage.
+.PP
+It's a bit too late in the evening for me to come up with one, so let
+me know if you think of anything.
+.SH "BUGS"
+Note: swconv makes fairly extensive attempts to trap most trappable
+errors. In the event of a problem, it will print a failure notice and
+exit with a non-zero exit code.
+.PP
+I should add a ``\f(CW--sleep-between-files\fR'\*(R' option that can call
+\f(CWsleep()\fR between processing files. This will make it less of a CPU
+hog at the expense of the process taking a bit longer.
+.PP
+swconv can only process one directory tree at a time. You may need to
+write a small script to have it hit lots of peer directory trees (util
+I add the necessary code to handle multiple directory names on the
+command-line).
+.PP
+Also, this may or may not be a bug, depending on your point of
+view. swconv \fIdoes not parse\fR the HTML \fIfile\fR\|(s). It simply applies
+some clever regexes to the file based on the command-line arguments
+you supply. \fIIt does not know about embedded code such as
+JavaScript\fR. Commented chunks of HTML may get adjusted when you don't
+want them to.
+.SH "AUTHOR AND COPYRIGHT"
+Copyright 1998, Jeremy D. Zawodny <jzawodn@wcnet.org>
+.PP
+swconv may be used, copied, and re-distributed under the same terms
+and conditions as Perl.
+.SH "VERSION"
+Documentation: \f(CW$Revision:\fR 1.11 $
+
+.rn }` ''
+.IX Title "SWCONV 1"
+.IX Name "swconv - ``Shared-Web'' converter."
+
+.IX Header "NAME"
+
+.IX Header "SYNOPSIS"
+
+.IX Header "DESCRIPTION"
+
+.IX Header "OPTIONS"
+
+.IX Header "EXAMPLES"
+
+.IX Subsection "Example #1"
+
+.IX Subsection "Example #2"
+
+.IX Header "BUGS"
+
+.IX Header "AUTHOR AND COPYRIGHT"
+
+.IX Header "VERSION"
+

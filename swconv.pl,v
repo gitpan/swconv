@@ -1,0 +1,954 @@
+head	1.13;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.13
+date	98.09.25.04.14.53;	author jzawodn;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	98.09.25.03.31.08;	author jzawodn;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	98.09.25.03.12.48;	author jzawodn;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	98.09.25.02.19.17;	author jzawodn;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	98.09.25.02.13.36;	author jzawodn;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	98.09.25.00.48.50;	author jzawodn;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	98.09.23.04.14.31;	author jzawodn;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	98.09.23.02.42.48;	author jzawodn;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	98.09.21.04.41.02;	author jzawodn;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	98.09.21.02.35.15;	author jzawodn;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	98.09.20.01.23.51;	author jzawodn;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	98.09.19.20.00.02;	author jzawodn;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	98.09.19.19.50.31;	author jzawodn;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.13
+log
+@Make errors fatal with a warn/exit combo.
+@
+text
+@#!/usr/bin/perl -w
+
+# $Id: swconv.pl,v 1.12 1998/09/25 03:31:08 jzawodn Exp jzawodn $
+
+# Script to help out with shared-web migration at Marathon/MAP.
+
+# See the manual/documentation for details...
+
+use strict;                             # enable warnings and stuff
+use Getopt::Long;                       # cmd-line options
+use File::stat;                         # for file information
+use File::Copy;                         # for file copies
+use File::Find;                         # for directory recursion
+
+# Global variables, command-line options, and friends.
+
+my $debug              = 0;             # debugging
+my $test               = 0;             # running in test mode?
+my $backup             = 1;             # make backups of changed files?
+my $no_backup          = 0;             # used to get above value
+my $verbose            = 0;             # print messages?
+my $help               = 0;             # trigger help message
+my $logfile            = "";            # where to log
+my $old_url_prefix     = "";            # the original url prefix
+my $new_url_prefix     = "";            # the new url prefix
+my $dir_is_source      = 0;             #
+my $dir_is_destination = 0;             #
+my $total_changes      = 0;             # count changes
+my $total_files_changed= 0;             # count files changed
+my $total_files_seen   = 0;             # count files seen
+
+# Process command-line options.
+
+
+&GetOptions("debug!" => \$debug,
+	    "test!" => \$test,
+            "help!" => \$help,
+            "verbose!" => \$verbose,
+	    "no-backup!" => \$no_backup,
+            "logfile=s" => \$logfile,
+            "old-url-prefix=s" => \$old_url_prefix,
+            "new-url-prefix=s" => \$new_url_prefix,
+            "dir-is-source!" => \$dir_is_source,
+            "dir-is-destination!" => \$dir_is_destination);
+
+&help if $help;                        # does the user need help? (probably)
+
+# Other stuff
+
+my $dir = shift;                       # where's the stuff?
+
+if ($dir =~ m/\\/oi) {
+  $dir =~ s#\\#/#goi;                  # fix DOSish paths ('\' -> '/')
+}
+
+
+if ($no_backup) {
+  $backup = 0;
+} else {
+  $backup = 1;
+}
+
+# Sanity checks (required elements and such)
+
+&help unless $dir;
+
+&help if ($dir_is_source and $dir_is_destination);
+&help if not ($dir_is_source or $dir_is_destination);
+&help if not ($new_url_prefix and $new_url_prefix);
+
+&debug("Running in test mode.") if $test;
+&debug("Running in real mode.") if not $test;
+&debug("Will create backups of changed files.") if $backup;
+&debug("Will not create backups of changed files.") if not $backup;
+&debug("Directory is $dir.");
+&debug("Directory is a source.") if $dir_is_source;
+&debug("Directory is a destination.") if $dir_is_destination;
+&debug("Log file is: $logfile") if $logfile;
+&debug("Debugging is on.") if $debug;
+&debug("Verbosity is on.") if $verbose;
+&debug("New URL Prefix is: $new_url_prefix.") if $new_url_prefix;
+&debug("Old URL Prefix is: $old_url_prefix.") if $old_url_prefix;
+
+my $short_old_url_prefix;
+my $short_new_url_prefix;
+
+my $old_server_url;
+my $new_server_url;
+
+if ($old_url_prefix) {                 # get just the dir piece
+  $old_url_prefix =~ m#http://.+?/([^/]+)#;
+  $short_old_url_prefix = $1;
+
+  $old_url_prefix =~ m#http://(.+?)/#oi;
+  $old_server_url = "http://$1/";
+} # end if
+
+if ($new_url_prefix) {                 # get just the dir piece
+  $new_url_prefix =~ m#http://.+?/([^/]+)#;
+  $short_new_url_prefix = $1;
+
+  $new_url_prefix =~ m#http://(.+?)/#oi;
+  $new_server_url = "http://$1/";
+}
+
+&debug("Short Old URL Prefix is: $short_old_url_prefix.") if $old_url_prefix;
+&debug("Short New URL Prefix is: $short_new_url_prefix.") if $new_url_prefix;
+
+die "Please specify URL prefixes completely...\n" unless
+  ($short_new_url_prefix and $short_old_url_prefix);
+
+&debug("Old Server URL is: $old_server_url.");
+&debug("New Server URL is: $new_server_url.");
+
+# We appear to be sane, so get started...
+
+find \&process_file, $dir;
+
+# other stats
+
+print "Summary\n";
+print "  $total_changes changes.\n";
+print "  $total_files_changed file changed.\n";
+print "  $total_files_seen files seen.\n";
+
+exit;
+
+# subs
+
+# ------------------------------------------------------ #
+
+sub help()  {
+
+  print<<EOH;
+
+Usage: $0 [options] directory
+
+  Available options: ('*' denotes a required flag)
+
+     --debug
+     --help
+     --test
+     --no-backup
+     --verbose
+     --logfile "path/to/file"
+   * --old-url-prefix "http://old.url.com/old/"
+   * --new-url-prefix "http://new.url.com/new/"
+   * --dir-is-source
+   * --dir-is-destination
+
+  See the manpage for details.
+
+EOH
+
+  exit;
+
+} # end sub
+
+# ------------------------------------------------------ #
+
+sub debug() {
+
+  my $msg = shift;
+  return unless $debug;
+  print "$msg\n";
+
+} # end sub
+
+# ------------------------------------------------------ #
+
+sub verbose() {
+
+  my $msg = shift;
+  return unless ($verbose or $debug);
+  print "$msg\n";
+
+} # end sub
+
+# ------------------------------------------------------ #
+
+sub verbose_only() {
+
+  my $msg = shift;
+  return unless (!$debug and $verbose);
+  print "$msg\n";
+
+} # end sub
+
+# ------------------------------------------------------ #
+
+# This sub is called from the find() function in File::Find,
+# so it's a bit ... uh ... special. It protects $_, it makes
+# use of some global variables, because passing paramters
+# would probably be wateful and awkward.
+
+# For our purposes, we need to find and replace links which may appear
+# in any of the following:
+#
+#  <A HREF="...">
+#  <IMG SRC="...">
+#  <FORM ... ACTION="...">
+#  <LINK ... HREF="...">
+#  <BODY BACKGROUND="...">
+#  <INPUT SRC="...">
+#
+# In all cases, we're gonna slurp the whole file into memory and
+# run several regexes on it to fix up all the links we can. We'll
+# also try to do some reporting as the process goes along.
+#
+# We'll have to make sure that all the matches are done in a case-
+# insensitive manner and that they span wrapped lines.
+
+# I think at this point it's silly to worry about checking the
+# recursion depth and running regexes against the `right' number
+# of concatenated '../../' strings to see if some of those slipped
+# in there. It's *much* easier to make the assumption that top-level
+# directories on virtual servers are mostly self-contained and that
+# the few references they happen to have to content on the same
+# (or formerly same) virtual server are either `Server' fully
+# qualified (meaning that they contain a server name) or are
+# `Directory' fully qualified (meaning that they start with an
+# absolute directory path.
+
+
+sub process_file () {
+  my $changes = 0;              # keep track of changes
+  my $pad = "   ";              # visual output padding
+  my $file = $_;                # current `file' to process
+  my $dir = $File::Find::dir;   # get the relative path
+  my $data;                     # where the file will be in memory
+  my $time;                     # see when this happens
+  local($_);                    # protect $_ so that find() doesn't freak
+
+  return if -d $file;           # skip directories
+                                # skip non-html files
+  return unless $file =~ /\.htm[l]?$/oi;
+
+  $total_files_seen++;
+
+  $time = localtime(time);
+  &debug("Starting at $time.");
+  &debug("Processing $dir/$file.");
+
+  &verbose_only("$dir/$file");
+
+  my $stat = stat($file);
+  my $size = $stat->size;
+
+  &debug("$pad Size is $size bytes.");
+
+  if ($size == 0) {
+    &debug("$pad Skipping.");
+    return;
+  } # end if
+
+  # Read the file
+
+  &debug("$pad Reading file.");
+
+  open(FILE, "<$file") or do {
+    &warn("Error reading $file.");
+    exit 10;
+  };
+  while(<FILE>) {
+    $data .= $_;
+  }
+  close(FILE);
+
+  $_ = $data;
+
+  my $num_matches;
+
+  # Do the real work here... (This will be interesting.)
+
+  #  <A HREF="...">
+  #  <IMG SRC="...">
+  #  <FORM ... ACTION="...">
+  #  <LINK ... HREF="...">
+  #  <BODY BACKGROUND="...">
+  #  <INPUT SRC="...">
+
+  my %attribute = (); # tag/attribute look-up
+
+  # This is a bit experimental, but should reduce code bloat and
+  # typos on my part. It may slow things down to to regex re-
+  # compilation, but I'm not sure yet.
+
+  %attribute = (
+		A     => "HREF",
+		IMG   => "SRC",
+		FORM  => "ACTION",
+		LINK  => "HREF",
+		BODY  => "BACKGROUND",
+		INPUT => "SRC"
+	       );
+
+  # Very cool. Works like a charm. :-)
+
+  
+  if ($dir_is_source) {
+
+    my $T; # tag
+    my $A; # attribute
+
+    foreach $T (keys %attribute) {
+
+      $A = $attribute{$T};
+
+      # Part 1
+
+      # Part 1, Case 1
+      # Server fully qualified links...
+      # http://old.url.com/old/foo.html -> http://new.url.com/new/foo.html
+      #
+      # Works!
+      &debug("$pad Searching <$T $A> for links to to $old_url_prefix.");
+      $num_matches = s/<\s*$T\s+([^>]*?)\s*$A\s*=\s*"($old_url_prefix)(.*?)"/<$T $1 $A="$new_url_prefix$3"/gimx;
+      $num_matches = 0 unless $num_matches;
+      &debug("$pad $num_matches matches found.");
+      $changes += $num_matches;
+
+      # Part 1, Case 1
+      # Directory fully qualified links...
+      # /old/foo.html -> http://new.url.com/new/foo.html
+      #
+      # Works!
+      &debug("$pad Searching <$T $A> for links to /$short_old_url_prefix/.");
+      $num_matches = s/<\s*$T\s+([^>]*?)\s*$A\s*=\s*"\/($short_old_url_prefix)\/(.*?)"/<$T $1 $A="$new_url_prefix$3"/gimx;
+      $num_matches = 0 unless $num_matches;
+      &debug("$pad $num_matches matches found.");
+      $changes += $num_matches;
+
+
+    } # end foreach
+
+  } else {
+
+    # Part 2
+    # 'inverse logic' search... (dir is dest)
+    
+    # is this necessary when $short_old_url_prefix = new one?
+    # I think not! Let's fix that later...
+
+    # /old/foo.html -> /new/foo.html
+    # /!old/ -> http://old.url.com/!old/
+    # http://old.url.com/old/foo.html -> /new/foo.html
+    #
+    # There is NO CHECK for /foo.html -> http://old.url.com/foo.html
+
+    my $T; # tag
+    my $A; # attribute
+
+    foreach $T (keys %attribute) {
+
+      $A = $attribute{$T};
+
+      # Part 2, Case 1
+      # Directory fully qualified links... (to the old server)
+      # /!old/ -> http://old.url.com/!old/
+      #
+      # BROKEN!!! Matches WAY too much stuff!
+      &debug("$pad Seraching <$T $A> for links to /!$short_old_url_prefix/.");
+      $num_matches = s/<\s*$T\s+([^>]*)\s*$A\s*=\s*"\/(?!$short_old_url_prefix\/)(.*?)\/(.*?)"/<$T 1 $1 $A="$old_server_url$2\/$3"/gimx;
+      $num_matches = 0 unless $num_matches;
+      &debug("$pad $num_matches matches found.");
+      $changes += $num_matches;
+
+      # Part 2, Case 2
+      # Directory fully qualified links...
+      # /old/foo.html -> /new/foo.html
+      #
+      # Works!
+      &debug("$pad Seraching <$T $A> for links to /$short_old_url_prefix/.");
+      $num_matches = s/<\s*$T\s+([^>]*)\s*$A\s*=\s*"\/($short_old_url_prefix)\/(.*?)"/<$T 2 $1 $A="\/$short_new_url_prefix\/$3"/gimx;
+      $num_matches = 0 unless $num_matches;
+      &debug("$pad $num_matches matches found.");
+      $changes += $num_matches;
+
+      # Part 2, Case 3
+      # Server fully qualified links...
+      # http://old.url.com/old/foo.html -> /new/foo.html
+      #
+      # Works!
+      &debug("$pad Searching <$T $A> for links to to $old_url_prefix.");
+      $num_matches = s/<\s*$T\s+([^>]*?)\s*$A\s*=\s*"($old_url_prefix)(.*?)"/<$T 3 $1 $A="\/$short_new_url_prefix\/$3"/gimx;
+      $num_matches = 0 unless $num_matches;
+      &debug("$pad $num_matches matches found.");
+      $changes += $num_matches;
+
+
+    } # end foreach
+
+  } # end if
+
+  # okay, this file is done in memory, let's write it out and
+  # such
+
+  &debug("$pad $changes changes made.");
+
+  &verbose_only("$changes changes made.");
+
+  $total_changes += $changes;
+
+  if ($changes == 0) {
+    &debug("$pad File is unchanged. No backup made.");
+  } else {
+    $total_files_changed++;
+    # make backup copy using copy()
+    if (not $test) {
+      if ($backup) {
+	copy($file,"$file.bak") or do {
+	  &warn("Error copying $file to $file.bak.");
+	  exit 10;
+	};
+	&debug("$pad File is changed. Backup made.");
+	# re-write current file from memory if copy() was okay
+      } else {
+	&debug("$pad File is changed. No backup made, as requested.");
+      }
+      open(FILE, ">$file") or do {
+	&warn("Error writing $file.");
+	exit 10;
+      };
+      print FILE $_;  
+      close(FILE);
+
+      $stat = stat($file);
+      $size = $stat->size;
+
+      &debug("$pad Size is now $size bytes.");
+
+    } else {
+      &debug("$pad File is changed. No backup made in test mode.");
+    } # end if
+
+  } # end if
+
+  $time = localtime(time);
+  &debug("Finishing at $time.");
+  &verbose_only("");
+
+
+} # end sub
+
+# ------------------------------------------------------ #
+
+# ------------------------------------------------------ #
+
+
+
+
+
+@
+
+
+1.12
+log
+@Added some end-of-processing reporting.
+@
+text
+@d3 1
+a3 1
+# $Id: swconv.pl,v 1.11 1998/09/25 03:12:48 jzawodn Exp jzawodn $
+d261 2
+a262 2
+    &debug("Error reading $file.");
+    return;
+d412 2
+a413 2
+	  &debug("Error copying $file to $file.bak.");
+	  exit;
+d421 2
+a422 2
+	&debug("Error writing $file.");
+	exit;
+@
+
+
+1.11
+log
+@Addded &verbose and &verbose_only.
+@
+text
+@d3 1
+a3 1
+# $Id: swconv.pl,v 1.10 1998/09/25 02:19:17 jzawodn Exp jzawodn $
+d28 3
+d119 6
+a124 1
+# do some other stuff here?
+d238 2
+d398 1
+a398 1
+  &debug("$pad total $changes changes made.");
+d402 2
+d407 1
+@
+
+
+1.10
+log
+@Things have improved...
+@
+text
+@d3 1
+a3 1
+# $Id: swconv.pl,v 1.9 1998/09/25 02:13:36 jzawodn Exp jzawodn $
+d76 1
+a76 1
+&debug("Debugging is on.");
+d163 20
+d223 1
+d230 2
+d234 2
+d390 2
+d424 5
+@
+
+
+1.9
+log
+@Added old_server_url and new_server_url.
+
+Part 2 still broken.
+@
+text
+@d3 1
+a3 1
+# $Id: swconv.pl,v 1.8 1998/09/25 00:48:50 jzawodn Exp jzawodn $
+d264 1
+d274 2
+d303 1
+d311 3
+a313 3
+    # http://old.url.com/old/foo.html -> http://new.url.com/new/foo.html
+    # or should that be:
+    #  http://old.url.com/old/foo.html -> /new/foo.html ?
+d328 1
+a328 1
+      $num_matches = s/<\s*$T\s+([^>]*)\s*$A\s*=\s*"\/(?!$short_old_url_prefix)(.*?)\/(.*?)"/<$T 1 $1 $A="$old_url_prefix$3"/gimx;
+@
+
+
+1.8
+log
+@Regex fixes from Marathon.
+@
+text
+@d3 1
+a3 1
+# $Id: swconv.pl,v 1.7 1998/09/23 04:14:31 jzawodn Exp $
+d84 3
+d90 3
+d98 3
+d109 3
+d272 2
+a273 1
+    
+d276 2
+d284 1
+d287 2
+d318 7
+a324 6
+      # Directory fully qualified links...
+      # /old/foo.html -> /new/foo.html
+      &debug("$pad Seraching <$T $A> for links to /$short_old_url_prefix/.");
+      # This is a funky match--it'll make your brain hurt if you
+      # haven't had quite enough sleep. :-(
+      $num_matches = s/<\s*$T\s+([^>]*)\s*$A\s*=\s*"\/($short_old_url_prefix)\/(.*?)"/<$T $1 $A="\/$short_new_url_prefix\/$3"/gimx;
+d329 7
+a335 7
+      # BROKEN!!!
+      # Directory fully qualified links... (to the old server)
+      # /!old/ -> http://old.url.com/!old/
+      &debug("$pad Seraching <$T $A> for links to /!$short_old_url_prefix/.");
+      # This is a funky match--it'll make your brain hurt if you
+      # haven't had quite enough sleep. :-(
+      $num_matches = s/<\s*$T\s+([^>]*)\s*$A\s*=\s*"\/(?!$short_old_url_prefix)(.*?)"/<$T $1 $A="$old_url_prefix$2"/gimx;
+d340 1
+d343 2
+d346 1
+a346 1
+      $num_matches = s/<\s*$T\s+([^>]*?)\s*$A\s*=\s*"($old_url_prefix)(.*?)"/<$T $1 $A="\/$short_new_url_prefix\/$3"/gimx;
+@
+
+
+1.7
+log
+@Added dir-is-dest cases, but not tested or working.
+@
+text
+@d3 1
+a3 1
+# $Id: swconv.pl,v 1.6 1998/09/23 02:42:48 jzawodn Exp jzawodn $
+d272 1
+a272 1
+      $num_matches = s/<\s*$T\s+([^>]*?)\s*$A\s*=\s*"\/($short_old_url_prefix)\/(.*?)"/<A $1 HREF="$new_url_prefix$3"/gimx;
+d305 1
+a305 1
+      $num_matches = s/<\s*$T\s+([^>]*)\s*$A\s*=\s*"\/($short_old_url_prefix)\/(.*?)"/<$T $A="\/$short_new_url_prefix\/$3/gimx;
+d316 1
+a316 1
+      $num_matches = s/<\s*$T\s+([^>]*)\s*$A\s*=\s*"\/(?!$short_old_url_prefix)\/(.*?)"/<$T $A="\/$short_new_url_prefix\/$3/gimx;
+@
+
+
+1.6
+log
+@Applied changes from Marathon.
+@
+text
+@d3 1
+a3 1
+# $Id: swconv.pl,v 1.5 1998/09/21 04:41:02 jzawodn Exp $
+d48 5
+a52 1
+$dir =~ s#\\#/#goi;                    # fix DOSish paths ('\' -> '/')
+d250 2
+a253 1
+
+d262 1
+d264 1
+a264 1
+      $num_matches = s/<\s*$T\s+([^>]*?)\s*$A\s*=\s*"($old_url_prefix)(.*?)"/<A $1 HREF="newone\/$3"/gimx;
+d270 1
+d282 38
+a319 1
+    # 'inverse logic' search...
+d321 12
+a332 1
+  }
+@
+
+
+1.5
+log
+@Going to bed. Seems to work. Added some comments to explain my
+semi-clear thinking on the matter of '../../' checking.
+@
+text
+@d3 1
+a3 1
+# $Id: swconv.pl,v 1.4 1998/09/21 02:35:15 jzawodn Exp jzawodn $
+d18 3
+d33 1
+d36 1
+d43 1
+a43 1
+&help if $help;
+d47 2
+a48 1
+my $dir = shift;
+d50 7
+a56 1
+# Sanity checks (required elements)
+d64 4
+d80 1
+a80 1
+if ($old_url_prefix) {
+d85 1
+a85 1
+if ($new_url_prefix) {
+d93 3
+a96 16
+# Just a big old if statement
+
+# For our purposes, we need to find and replace links which may appear
+# in any of the following:
+#
+#  <A HREF="...">
+#  <IMG SRC="...">
+#  <FORM ... ACTION="...">
+#  <LINK ... HREF="...">
+#
+# In all cases, we're gonna slurp the while file into memory and
+# run several regexes on it to fix up all the links we can. We'll
+# also try to do some reporting as the process goes along.
+#
+# We'll have to make sure that all the matches are done in a case-
+# insensitive manner and that they span wrapped lines.
+d114 1
+a114 1
+  Available options:
+d116 10
+a125 8
+    --debug
+    --help
+    --verbose
+    --logfile
+    --old-url-prefix
+    --new-url-prefix
+    --dir-is-source
+    --dir-is-destination
+d152 29
+d183 1
+a183 1
+  my $pad = " ";                # visual output padding
+d191 1
+a191 1
+  return unless $file =~ /\.htm[l]$/oi;
+d218 4
+d224 21
+a244 1
+  &debug("$pad Searching for foo.");
+d246 1
+a246 2
+  my $num_matches = 0;
+  $_ = $data;
+a247 1
+  $num_matches = s/foo/bar/goim;
+d249 2
+a250 1
+  $num_matches = 0 unless $num_matches;
+d252 1
+a252 1
+  &debug("$pad $num_matches matches found.");
+d254 15
+a268 1
+  $changes += $num_matches;
+a269 12
+  # blah
+
+  # I think at this point it's silly to worry about checking the
+  # recursion depth and running regexes against the `right' number
+  # of concatenated '../../' strings to see if some of those slipped
+  # in there. It's *much* easier to make the assumption that top-level
+  # directories on virtual servers are mostly self-contained and that
+  # the few references they happen to have to content on the same
+  # (or formerly same) virtual server are either `Server' fully
+  # qualified (meaning that they contain a server name) or are
+  # `Directory' fully qualified (meaning that they start with an
+  # absolute directory path.
+d271 1
+a271 14
+  if ($dir_is_source) {
+    # Server Fully qualified links in <A HREF="...">
+    &debug("$pad Searching for links to $old_url_prefix.");
+    $num_matches = s/<\s*A\s+([^>]*?)\s*HREF\s*=\s*"($old_url_prefix)(.*?)"/<A $1 HREF="newone\/$3"/goimx;
+    $num_matches = 0 unless $num_matches;
+    &debug("$pad $num_matches matches found.");
+    $changes += $num_matches;
+
+    # Directory fully qualified links in <A HREF="...">
+    &debug("$pad Searching for links to /$short_old_url_prefix/.");
+    $num_matches = s/<\s*A\s+([^>]*?)\s*HREF\s*=\s*"\/($short_old_url_prefix)\/(.*?)"/<A $1 HREF="$new_url_prefix$3"/;
+    $num_matches = 0 unless $num_matches;
+    &debug("$pad $num_matches matches found.");
+    $changes += $num_matches;
+a272 1
+    # ... <form action>, <img src>, <link href>
+d275 2
+d287 27
+a313 16
+    # make backup copy usiny copy()
+    copy($file,"$file.bak");
+    # remember to check return code of copy()
+    &debug("$pad File is changed. Backup made.");
+    # re-write current file from memory if copy() was okay
+    open(FILE, ">$file") or do {
+      &debug("Error writing $file.");
+      return;
+    };
+    print FILE $_;  
+    close(FILE);
+
+    $stat = stat($file);
+    $size = $stat->size;
+
+    &debug("$pad Size is now $size bytes.");
+@
+
+
+1.4
+log
+@Basic functionality is here. Now I need to add the custom regexes.
+@
+text
+@d3 1
+a3 1
+# $Id: swconv.pl,v 1.3 1998/09/20 01:23:51 jzawodn Exp jzawodn $
+d44 1
+a44 1
+# Sanity checks
+d49 1
+a49 1
+
+d53 2
+a54 2
+&debug("Directory is source.") if $dir_is_source;
+&debug("Directory is destination.") if $dir_is_destination;
+d199 33
+d235 1
+a235 1
+  &debug("$pad $changes changes made.");
+@
+
+
+1.3
+log
+@Lots of comments added.
+@
+text
+@d3 1
+a3 1
+# $Id: swconv.pl,v 1.2 1998/09/19 20:00:02 jzawodn Exp jzawodn $
+d12 2
+d50 2
+d61 15
+d95 3
+a97 13
+if ($dir_is_source) {
+  # dir is source
+  #
+  # Okay, our logic goes something like this...
+  #
+  # Scan all html files. For each file, find all links.
+
+} else {
+  # dir is destination
+  #
+  # Okay, our logic goes something like this...
+  
+} # end if
+d142 86
+d231 4
+@
+
+
+1.2
+log
+@Basic framework all set up.
+@
+text
+@d3 1
+a3 1
+# $Id: swconv.pl,v 1.1 1998/09/19 19:50:31 jzawodn Exp jzawodn $
+d7 2
+d15 8
+a22 4
+my $debug        = 0;                   # debugging
+my $verbose      = 0;                   # print messages?
+my $help         = 0;                   # trigger help message
+my $logfile      = "";                  # where to log
+d28 7
+a34 1
+           "help!" => \$help);
+d38 3
+d42 3
+a44 1
+# Other stuff
+d46 1
+d48 41
+d100 14
+a113 1
+ Usage: $0 [options] directory
+d117 3
+a119 1
+}
+d122 8
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d3 27
+a29 1
+# $Id$
+d32 23
+@

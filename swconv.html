@@ -1,0 +1,480 @@
+    <HTML> 
+	<HEAD> 
+	    <TITLE>swconv - ``Shared-Web'' converter.
+
+</TITLE> 
+	</HEAD>
+
+	<BODY>
+
+<!-- INDEX BEGIN -->
+
+<UL>
+
+	<LI><A HREF="#NAME">NAME</A>
+	<LI><A HREF="#SYNOPSIS">SYNOPSIS</A>
+	<LI><A HREF="#DESCRIPTION">DESCRIPTION</A>
+	<LI><A HREF="#OPTIONS">OPTIONS</A>
+	<LI><A HREF="#EXAMPLES">EXAMPLES</A>
+	<UL>
+
+		<LI><A HREF="#Example_1">Example #1</A>
+		<LI><A HREF="#Example_2">Example #2</A>
+	</UL>
+
+	<LI><A HREF="#BUGS">BUGS</A>
+	<LI><A HREF="#AUTHOR_AND_COPYRIGHT">AUTHOR AND COPYRIGHT</A>
+	<LI><A HREF="#VERSION">VERSION</A>
+</UL>
+<!-- INDEX END -->
+
+<HR>
+<P>
+<H1><A NAME="NAME">NAME
+
+</A></H1>
+swconv - ``Shared-Web'' converter.
+
+
+<P>
+
+<P>
+<HR>
+<H1><A NAME="SYNOPSIS">SYNOPSIS
+
+</A></H1>
+swconv [options] directory
+
+
+<P>
+
+<P>
+<HR>
+<H1><A NAME="DESCRIPTION">DESCRIPTION
+
+</A></H1>
+swconv was designed for use at Marathon Oil Company
+(http://www.marathon.com/). (The name ``swconv'' is historical only.)
+
+
+<P>
+
+swconv is a utility to make moving large directory trees of web content
+from one virtual server (or directory) to another easier.
+
+
+<P>
+
+Every once in a while, the need arises to move web content from on virtual
+server to another. When that happens, the publisher or webmaster is left
+with the daunting task of changing/fixing/updating lots of hyperlinks that
+broke as a result of the move.
+
+
+<P>
+
+Unfortunately, the process of fixing those links is quite tedious and error
+prone when attempted manually. One must be sure to check (and possibly
+update references on the old an new virtual server. One must check all
+places where there might have been links to the moved content, the moved
+content itself may have broken links to content that used to be
+``relative'' (because it was on the old virtual server), and so on.
+
+
+<P>
+
+swconv makes this process easier. It is designed to be run after the web
+content has been moved from the old virtual server to the new one and
+before any manual attempts to update the links have been attempted.
+
+
+<P>
+
+swconv scans for links embedded in these tags:
+
+
+<P>
+
+<PRE>   &lt;IMG...&gt;
+   &lt;A...&gt;
+   &lt;LINK...&gt;
+   &lt;FORM...&gt;
+   &lt;INPUT...&gt;
+</PRE>
+
+<P>
+
+You will need to give swconv a fair amount of information about your setup.
+This can be accompished either with command-line options (see ``OPTIONS''
+below) or via a configuration file specified with the ``--config'' option
+(not yet implemented).
+
+
+<P>
+
+One may simply invoke swconv with some command-line options (see
+``OPTIONS'' below) to customize its behavior and the path to the directory
+which needs to be processed.
+
+
+<P>
+
+After reading through the available options, you should read the
+``EXAMPLES'' section for ideas of how to use swconv when.
+
+
+<P>
+
+<P>
+<HR>
+<H1><A NAME="OPTIONS">OPTIONS
+
+</A></H1>
+wclogrot can take a combination of many command-line options. All options
+begin with a double-dash (--). Some take mandatory parameters, while others
+are simple flags to enable a certain option.
+
+
+<P>
+
+The available options are:
+
+
+<P>
+
+<STRONG>--logfile</STRONG> ``/path/to/file''
+
+
+<P>
+
+<EM>NOT IMPLEMENTED YET</EM>
+
+
+
+
+<P>
+
+The location and file in which you'd like swconv to put messages. If a log
+file is specified, nothing will be printed to STDOUT unless a problem
+creeps up. If you specify the ``<CODE>--verbose</CODE>'' flag, it will increase the verbosity of the messgaes put into this file.
+
+
+<P>
+
+<STRONG>--debug</STRONG>
+
+
+
+
+<P>
+
+Enable the output of debugging messages to STDOUT. This is really only
+useful for development or if you are trying to track down a problem. The
+debugging messages should give you a good idea of what is happening as
+swconv goes through its motions. Debugging is disabled by default.
+Debugging is not automatically redirected to a log file when the ``<CODE>--logfile</CODE>'' option is used. You must redirect debugging messages from the shell if
+you wish to capture them.
+
+
+<P>
+
+<STRONG>--backup</STRONG>
+
+
+
+
+<P>
+
+Enable the creation of backup files. Every file that is modified will be
+backed up by appending a backup suffix to the full name of hte file (see
+the ``<CODE>--backup-suffix</CODE>'' option, below). <EM>Backups are disabled
+by default</EM>.
+
+
+<P>
+
+<STRONG>--backup-suffix "blah"</STRONG>
+
+
+
+
+<P>
+
+<EM>NOT IMPLEMENTED YET</EM>
+
+
+
+
+<P>
+
+Use this as the backup suffix. (See the ``<CODE>--backup</CODE>'' option, above) for details about what this does. The default value of
+backup-suffix is ``.bak''
+
+
+<P>
+
+<STRONG>--test</STRONG>
+
+
+
+
+<P>
+
+Tell swconv to run in test mode. It will go through all the motions,
+respecting other swtiches you've set, but when it comes to commit the
+changes to disk, it will not rewrite any files. This is useful for
+pre-scanning directories to see what the impact of running swconv will be.
+
+
+<P>
+
+Please use this flag when you're testing things. Depending on the ``<CODE>--backup</CODE>'' option isn't always what you want to do.
+
+
+<P>
+
+<STRONG>--old-url-prefix</STRONG> ``http://www.some.thing/foo/''
+
+
+<P>
+
+<EM>Required</EM>
+
+
+
+
+<P>
+
+Tell swconv the URL prefix of the old content location. This defaults to
+null, so is required that you set this option.
+
+
+<P>
+
+<STRONG>--new-url-prefix</STRONG> ``http://www.new.thing/bar/''
+
+
+<P>
+
+<EM>Required</EM>
+
+
+
+
+<P>
+
+Tell swconv the URL prefix of the new content location. This defaults to
+null, so it is required that you set this option.
+
+
+<P>
+
+<STRONG>--dir-is-source</STRONG>
+
+
+
+
+<P>
+
+Tell swconv that the directory you've specified is the source (meaning that
+it may contain links to the moved content). Source is where links start.
+This cannot be set if ``<CODE>dir-is-destination</CODE>''is set or an error will result.
+
+
+<P>
+
+<STRONG>--dir-is-destination</STRONG>
+
+
+
+
+<P>
+
+Tell swconv that the directory you've specified is the destination (meaning
+that it contains the moved content). Destination is where the links will
+go. This cannot be set if ``<CODE>dir-is-source</CODE>'' is set or an error will result.
+
+
+<P>
+
+<STRONG>--help</STRONG>
+
+
+
+
+<P>
+
+Display a brief help message to remind you of command-line arguments. This
+won't happen by default.
+
+
+<P>
+
+<STRONG>directory</STRONG>
+
+
+
+
+<P>
+
+The directory name/path that you specify may contain either ``<CODE>/</CODE>'' or ``<CODE>\</CODE>'' as path separators (Unix or DOS style). They will be converted properly
+internally.
+
+
+<P>
+
+<P>
+<HR>
+<H1><A NAME="EXAMPLES">EXAMPLES
+
+</A></H1>
+Following are several examples of using swconv in different situations. In
+cases when the command-line arguments are quite long, lines are broken up
+with trailig backslahes (``\'').
+
+
+<P>
+
+<P>
+<HR>
+<H2><A NAME="Example_1">Example #1
+
+</A></H2>
+You have moved content from <CODE>/www/companyX/products</CODE> to
+<CODE>/www/companyZ/products</CODE>, which are hosted as <A
+HREF="http://www.companyX.com/products">http://www.companyX.com/products</A>
+and <A
+HREF="http://www.companyZ.com/products">http://www.companyZ.com/products</A>
+respectively.
+
+
+<P>
+
+You move the content and remove the <CODE>/www/companyX/products directory</CODE>.
+
+
+<P>
+
+There may be links in <CODE>/www/companyX/about_us</CODE> which refer to pages in what is now <CODE>/www/companyZ/products</CODE>, but the links don't know that.
+
+
+<P>
+
+To update any links in <CODE>/www/companyX/about_us</CODE>, do the following:
+
+
+<P>
+
+<PRE>  cd /www/companyX
+  swconv --dir-is-source \
+         --old-url-prefix &quot;<A HREF="http://www.companyX.com/products/&quot">http://www.companyX.com/products/&quot</A>; \
+         --new-url-prefix &quot;<A HREF="http://www.companyZ.com/products/&quot">http://www.companyZ.com/products/&quot</A>; \
+         --backup about_us
+</PRE>
+
+<P>
+
+There may also be links in <CODE>/www/comapnyZ/products</CODE> which refer to pages in what is now on a different virtual server, the
+stuff still sitting in <CODE>/www/companyX/</CODE>.
+
+
+<P>
+
+To adjust those links, do the following:
+
+
+<P>
+
+<PRE>  cd /www/companyZ
+  swconv --dir-is-destination \
+         --old-url-prefix &quot;<A HREF="http://www.companyX.com/products/&quot">http://www.companyX.com/products/&quot</A>; \
+         --new-url-prefix &quot;<A HREF="http://www.companyZ.com/products/&quot">http://www.companyZ.com/products/&quot</A>; \
+         --backup products
+</PRE>
+
+<P>
+
+Both of those sets of commands will produce backup files in those
+directories. Only files which change are backed up.
+
+
+<P>
+
+<P>
+<HR>
+<H2><A NAME="Example_2">Example #2
+
+</A></H2>
+This needs to be a more clever example of using swconv usage.
+
+
+<P>
+
+It's a bit too late in the evening for me to come up with one, so let me
+know if you think of anything.
+
+
+<P>
+
+<P>
+<HR>
+<H1><A NAME="BUGS">BUGS
+
+</A></H1>
+Note: swconv makes fairly extensive attempts to trap most trappable errors.
+In the event of a problem, it will print a failure notice and exit with a
+non-zero exit code.
+
+
+<P>
+
+I should add a ``<CODE>--sleep-between-files</CODE>'' option that can call
+<CODE>sleep()</CODE> between processing files. This will make it less of a CPU hog at the
+expense of the process taking a bit longer.
+
+
+<P>
+
+swconv can only process one directory tree at a time. You may need to write
+a small script to have it hit lots of peer directory trees (util I add the
+necessary code to handle multiple directory names on the command-line).
+
+
+<P>
+
+Also, this may or may not be a bug, depending on your point of view. swconv <EM>does not parse</EM> the HTML <CODE>file(s).</CODE> It simply applies some clever regexes to the
+file based on the command-line arguments you supply. <EM>It does not know about embedded code such as
+JavaScript</EM>. Commented chunks of HTML may get adjusted when you don't want them to.
+
+
+<P>
+
+<P>
+<HR>
+<H1><A NAME="AUTHOR_AND_COPYRIGHT">AUTHOR AND COPYRIGHT
+
+</A></H1>
+Copyright 1998, Jeremy D. Zawodny <A
+HREF="MAILTO:<jzawodn@wcnet.org>"><jzawodn@wcnet.org></A>
+
+
+<P>
+
+swconv may be used, copied, and re-distributed under the same terms and
+conditions as Perl.
+
+
+<P>
+
+<P>
+<HR>
+<H1><A NAME="VERSION">VERSION
+
+</A></H1>
+Documentation: $Revision: 1.11 $
+<P>
+
+</DL>
+    </BODY>
+
+    </HTML>

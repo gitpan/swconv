@@ -1,0 +1,4 @@
+# swconv makefile.
+
+swconv.1: swconv.pod
+	pod2man swconv.pod > swconv.1
